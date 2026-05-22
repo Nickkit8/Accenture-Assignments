@@ -1,0 +1,86 @@
+ClassAssignment(D2) - E-Commerce Management
+
+use ecommerce
+
+db.createCollection("products")
+
+db.products.insertMany([
+                        {name:"iphone 14", category:"electronics", price:75000, stock:25, brand:"apple"}, 
+                        {name:"samsung galaxy s22", category:"electronics", price:65000, stock:30, brand:"samsung"}, 
+                        {name:"dell laptop", category:"computers", price:55000, stock:15, brand:"dell"}, 
+                        {name:"hp pavilion laptop", category:"computers", price:50000, stock:12, brand:"hp"}, 
+                        {name:"nike shoes", category:"fashion", price:50000, stock:50, brand:"nike"}, 
+                        {name:"adidas tshirt", category:"fashiion", price:1500, stock:80, brand:"adidas"}, 
+                        {name:"sony headphones", category:"electronics", price:3000, stock:40, brand:"sony"}, 
+                        {name:"wooden dining table", category:"furniture", price:20000, stock:5, brand:"ikea"}, 
+                        {name:"office chair", category:"furniture", price:7000, stock:20, brand:"godrej"}, 
+                        {name:"bluetooth speaker", category:"electronics", price:2500, stock:60, brand:"jbl"}])
+
+Find Operation:
+
+db.products.find()
+
+db.products.find().pretty()
+
+db.products.find({brand:"sony"})
+
+db.products.find({price:{$lt:5000}})
+
+db.products.find({price:{$lte:5000}})
+
+db.products.find({price:{$gt:5000}})
+
+db.products.find({price:{$gte:5000}})
+
+db.products.find({price:{$ne:5000}})
+
+db.products.find({price:{$in:[1000,2000,5000]}})
+
+db.products.find({price:{$nin:[1000,2000,5000]}})
+
+db.products.find({category:"electronics", price:3000})
+
+db.products.find({$or:[{category:"electronics"},{brand:"apple"}]})
+
+db.products.find({$or:[{price:{$gt:5000}},{brand:"samsung"}]})
+
+db.products.find({price : {$gte : 5000, $lte : 20000}})
+
+db.products.find({price:{$not :{$gt : 5000}}})
+
+Update Operations:
+
+db.products.updateOne({_id: ObjectId('6a0ff1d6a27287047318aeae')}, {$set: {name : "galaxy s23"}})
+
+db.products.updateMany({price: {$lt:5000}}, {$set: {stock: 50}})
+
+db.products.updateMany({category: "electronics"}, {$set:{stock: 100}})
+
+
+db.products.updateOne({brand:"apple"}, {$set: {price : 80000}})
+
+db.products.replaceOne({_id: ObjectId('6a0ff1d6a27287047318aeb2')}, {name:"Baggy jeans", category:"fashiion", price:1499, stock:20, brand:"dnmx"})
+
+Delete Operations
+
+db.products.deleteOne({name:"office chair"})
+
+db.products.deleteOne({price:{$lt:2000}})
+
+Projection & Filtering:
+
+db.products.find({}, {name:1, price:1})
+
+db.products.find({}, {_id:0, name:1, price:1})
+
+Limit & Pagination:
+
+db.products.find().limit(5)
+
+db.products.find().skip(5).limit(5)
+
+Sorting:
+
+db.products.find().sort({price:1})
+
+db.products.find().sort({price:-1})
