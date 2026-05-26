@@ -1,0 +1,127 @@
+D3 Online shopping - orders collection
+
+use onlineShopping
+
+db.createCollection("orders")
+
+db.orders.insertMany([
+  {
+    customer_id: "C101",
+    name: "Asha",
+    items: [
+      { product: "Mobile", price: 15000 },
+      { product: "Earphones", price: 2000 }
+    ]
+  },
+  {
+    customer_id: "C102",
+    name: "Kiran",
+    items: [
+      { product: "Mobile", price: 15000 },
+      { product: "Laptop", price: 50000 }
+    ]
+  },
+  {
+    customer_id: "C103",
+    name: "Neha",
+    items: [
+      { product: "Earphones", price: 2000 },
+      { product: "Laptop", price: 50000 }
+    ]
+  }
+])
+
+Scenario 1:
+
+db.orders.aggregate([
+
+{ $unwind: "$items" },
+
+{
+$match: {
+"items.product": "Mobile",
+"items.price": { $gte: 15000 }
+}
+},
+
+{
+$group: {
+_id: "$items.product",
+totalCustomers: { $sum: 1 },
+totalRevenue: { $sum: "$items.price" },
+averagePrice: { $avg: "$items.price" },
+minimumPrice: { $min: "$items.price" },
+maximumPrice: { $max: "$items.price" },
+customerNames: { $push: "$name" },
+firstCustomer: { $first: "$name" }
+}
+}
+
+])
+
+Scenario 2:
+
+db.orders.aggregate([
+
+{ $unwind: "$items" },
+
+{
+$match: {
+"items.price": { $gte: 15000 },
+"items.product": { $in: ["Mobile", "Laptop"] }
+}
+},
+
+{
+$group: {
+_id: "$items.product",
+numberOfOrders: { $sum: 1 },
+totalRevenue: { $sum: "$items.price" },
+averagePrice: { $avg: "$items.price" },
+minimumPrice: { $min: "$items.price" },
+maximumPrice: { $max: "$items.price" },
+customers: { $push: "$name" }
+}
+}
+
+])
+
+Scenario 3:
+
+db.orders.aggregate([
+
+{ $unwind: "$items" },
+
+{
+$group: {
+_id: "$customer_id",
+customerName: { $first: "$name" },
+totalAmountSpent: { $sum: "$items.price" },
+averagePrice: { $avg: "$items.price" },
+minimumPrice: { $min: "$items.price" },
+maximumPrice: { $max: "$items.price" },
+productsPurchased: { $push: "$items.product" },
+totalProducts: { $sum: 1 }
+}
+},
+
+{
+$match: {
+totalProducts: { $gt: 1 },
+totalAmountSpent: { $gte: 30000 }
+}
+},
+
+{
+$project: {
+_id: 0,
+customerName: 1,
+totalAmountSpent: 1,
+averagePrice: 1,
+minimumPrice: 1,
+maximumPrice: 1,
+productsPurchased: 1
+}
+}
+
+])
