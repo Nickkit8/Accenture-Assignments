@@ -1,0 +1,118 @@
+D4 Code evaluation2
+
+Collections : Customer, Salesman
+
+db.createCollection("Customer")
+
+db.Customer.insertMany([
+{id: 3001, FirstName: "Ben", LastName: "Miller", Street: "101,Candy Rd", City: "Redmond", State: "WA", Phone: 9845367123, Email: "ben@gmail.com"},
+{id: 3002, FirstName: "Garrett", LastName: "Vargas", Street: "102, Acorn Avenue", City: "Calgary", State: "AB", Phone: 9789011111, Email: "garrett@gmail.com"},
+{id: 3003, FirstName: "Gabe", LastName: "Mares", Street: "1061, Buskrit Avenue", City: "Edmonds", State: "WA", Phone: 9944433222, Email: "gabe@gmail.com"},
+{id: 3004, FirstName: "Reuben", LastName: "Dsa", Street: "1064, Slow Creek Road", City: "Seattle", State: "WA", Phone: 9988844555, Email: "reuben@gmail.com"},
+{id: 3005, FirstName: "Gordon", LastName: "Hee", Street: "108, LakeSide Court", City: "Bellevue", State: "WA", Phone: 8855577234, Email: "gordon@gmail.com"},
+{id: 3006, FirstName: "Karan", LastName: "Khanna", Street: "1102, Ravenwood", City: "Seattle", State: "WA", Phone: 7788966445, Email: "karan@gmail.com"},
+{id: 3007, FirstName: "Francois", LastName: "Ajenstat", Street: "1144, Paradise Ct", City: "Issaquah", State: "WA", Phone: 7889900123, Email: "francois@gmail.com"},
+{id: 3008, FirstName: "Sariya", LastName: "Hampa", Street: "1185, Dallas Drive", City: "Everett", State: "WA", Phone: 9667785544, Email: "sariya@gmail.com"},
+{id: 3009, FirstName: "Krik", LastName: "Koenigs", Street: "1220, Bradford Way", City: "Seattle", State: "WA", Phone: 9774455443, Email: "krik@gmail.com"},
+{id: 3010,FirstName: "Kim", LastName: "Ralls", Street: "1226, Shoe St", City: "Bothell", State: "WA", Phone: 8770033221, Email: "kim@gmail.com"}
+])
+
+db.createCollection("Salesman")
+
+db.Salesman.insertMany([
+{id: 5001, Name: "James Hoog", City: "New York", Commission: 0.15},
+{id: 5002, Name: "Nail Knite", City: "Paris", Commission: 0.13},
+{id: 5003, Name: "Lauson Hen", City: "Germany", Commission: 0.12},
+{id: 5005,Name: "Pit Alex", City: "London", Commission: 0.11},
+{id: 5006,Name: "Mc Lyon", City: "Paris", Commission: 0.14},
+{id: 5007,Name: "Paul Adam", City: "Rome", Commission: 0.13}
+])
+
+1.
+
+db.Purchase.aggregate([
+{
+$lookup: {
+from: "Salesman",
+localField: "salesman_id",
+foreignField: "id",
+as: "salesmanDetails"
+}
+}
+])
+
+2.
+
+db.Customer.find(
+{ State: "WA" },
+{ FirstName:1, LastName:1, City:1, State:1, _id:0 }
+).sort({ City:1 })
+
+3.
+
+db.Salesman.updateOne(
+{ id:5005 },
+{ $set:{ Commission:0.13 } }
+)
+
+db.Salesman.find({ id:5005 })
+
+4.
+
+db.Customer.find({
+FirstName: /^G/
+})
+
+6.
+
+db.Customer.find({
+FirstName: {
+$regex: "^k",
+$options: "i"
+}
+})
+
+7.
+
+db.Customer.find().sort({ _id:-1 }).limit(1)
+
+8.
+
+db.Purchase.aggregate([
+{
+$lookup: {
+from: "Salesman",
+let: { sid: "$salesman_id" },
+pipeline: [{ $match: {$expr: { $eq: ["$id", "$$sid"]}}}], as: "salesmanDetails"}}
+])
+
+9.
+
+db.Customer.aggregate([
+{
+$lookup: {
+from: "Purchase",
+localField: "id",
+foreignField: "customer_id",
+as: "purchaseDetails"
+}
+},
+
+{ $unwind: "$purchaseDetails" },
+
+{
+$project: {
+_id:0,
+FirstName:1,
+LastName:1,
+Phone:1,
+Email:1,
+item_quantity:"$purchaseDetails.item_quantity",
+purchase_amt:"$purchaseDetails.purchase_amt"
+}
+},
+
+{
+$sort:{ FirstName:1 }
+}
+])

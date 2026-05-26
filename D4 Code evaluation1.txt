@@ -1,0 +1,170 @@
+D4 Code evaluation1
+
+Collectiona : Books, Purchase
+
+Evaluation 1:
+
+1.
+
+db.createCollection("Books")
+
+db.Books.insertMany([
+{ id:1, Title:"Data Structure", Author:"Lipschute", Subject:"DS", Publisher:"McGraw", Edition:"First Edition", Quantity:4, Price:217 },
+{ id:2, Title:"DOS Guide", Author:"NORTRON", Subject:"OS", Publisher:"PHI", Edition:"First Edition", Quantity:3, Price:175 },
+{ id:3, Title:"Turbo C++", Author:"Robert Lafore", Subject:"Prog", Publisher:"Galgotia", Edition:"Second Edition", Quantity:5, Price:270 },
+{ id:4, Title:"Dbase Dummies", Author:"Palmer", Subject:"DBMS", Publisher:"PustakM", Edition:"First Edition", Quantity:7, Price:130 },
+{ id:5, Title:"Mastering Windows", Author:"Cowart", Subject:"OS", Publisher:"BPB", Edition:"Third Edition", Quantity:1, Price:225 },
+{ id:6, Title:"Computer Studies", Author:"French", Subject:"FND", Publisher:"Galgotia", Edition:"Second Edition", Quantity:2, Price:75 },
+{ id:7, Title:"COBOL", Author:"Stern", Subject:"Prog", Publisher:"John W", Edition:"Third Edition", Quantity:4, Price:1000 },
+{ id:8, Title:"Guide Network", Author:"Freed", Subject:"NET", Publisher:"Zpress", Edition:"Second Edition", Quantity:3, Price:200 },
+{ id:9, Title:"Basic for Beginners", Author:"Norton", Subject:"Prog", Publisher:"BPB", Edition:"First Edition", Quantity:3, Price:40 },
+{ id:10, Title:"Advanced Pascal", Author:"Schildt", Subject:"Prog", Publisher:"McGraw", Edition:"Third Edition", Quantity:4, Price:350 }
+])
+
+db.createCollection("Purchase") 
+
+db.Purchase.insertMany([
+{ order_no:70001, Book_id:3, item_quantity:3, purchase_amt:810, date:"2022-11-05", customer_id:3005, salesman_id:5002 },
+{ order_no:70009, Book_id:4, item_quantity:4, purchase_amt:520, date:"2022-11-10", customer_id:3001, salesman_id:5005 },
+{ order_no:70002, Book_id:5, item_quantity:1, purchase_amt:225, date:"2022-11-09", customer_id:3002, salesman_id:5001 },
+{ order_no:70004, Book_id:6, item_quantity:2, purchase_amt:150, date:"2022-11-08", customer_id:3009, salesman_id:5003 },
+{ order_no:70007, Book_id:1, item_quantity:2, purchase_amt:424, date:"2022-11-08", customer_id:3005, salesman_id:5002 },
+{ order_no:70008, Book_id:8, item_quantity:1, purchase_amt:200, date:"2022-11-01", customer_id:3007, salesman_id:5001 },
+{ order_no:70010, Book_id:7, item_quantity:2, purchase_amt:2000, date:"2022-11-03", customer_id:3004, salesman_id:5006 },
+{ order_no:70003, Book_id:10, item_quantity:2, purchase_amt:700, date:"2022-11-04", customer_id:3009, salesman_id:5003 },
+{ order_no:70012, Book_id:9, item_quantity:2, purchase_amt:80, date:"2022-11-02", customer_id:3008, salesman_id:5002 },
+{ order_no:70011, Book_id:2, item_quantity:2, purchase_amt:350, date:"2022-11-07", customer_id:3003, salesman_id:5007 },
+{ order_no:70013, Book_id:7, item_quantity:2, purchase_amt:2000, date:"2022-11-06", customer_id:3002, salesman_id:5001 }
+])
+
+3.
+
+db.Books.aggregate([
+{
+$group: {
+_id: "$Title",
+totalPrice: { $sum: "$Price" }
+}
+},
+{
+$sort: { _id: 1 }
+}
+])
+
+4.
+
+db.Purchase.aggregate([
+{
+$group: {
+_id: "$Book_id",
+count: { $sum: 1 },
+totalQuantity: { $sum: "$item_quantity" }
+}
+},
+{
+$match: {
+count: { $gt: 1 }
+}
+}
+])
+
+5.
+
+db.Books.aggregate([
+{
+$group: {
+_id: "$Edition",
+totalPrice: { $sum: "$Price" }
+}
+}
+])
+
+6.
+
+db.Books.aggregate([
+{
+$project: {
+Title: 1,
+totalAmount: { $multiply: ["$Quantity", "$Price"] }
+}
+},
+{
+$sort: { totalAmount: 1 }
+}
+])
+
+7.
+
+db.Purchase.aggregate([
+{
+$group: {
+_id: null,
+averagePurchaseAmount: { $avg: "$purchase_amt" }
+}
+},
+{
+$project: {
+_id: 0,
+averagePurchaseAmount: 1
+}
+}
+])
+
+8.
+
+db.Books.aggregate([
+{
+$project: {
+Title: 1,
+totalAmount: { $multiply: ["$Quantity", "$Price"] }
+}
+},
+{
+$match: {
+totalAmount: { $gte: 1000 }
+}
+},
+{
+$sort: { totalAmount: -1 }
+}
+])
+
+9.
+
+let oldName = "COBOL";
+let newName = "COBOL_new_Edition";
+
+db.Books.updateOne(
+{ Title: oldName },
+{ $set: { Title: newName } }
+)
+
+11.
+
+db.counters.insertOne({
+_id: "bookid",
+sequence_value: 0
+})
+
+12.
+
+db.Purchase.find({
+$expr: {
+$eq: [
+{ $mod: ["$purchase_amt", 4] },
+0
+]
+}
+})
+
+
+
+
+
+
+
+
+
+
+
+
